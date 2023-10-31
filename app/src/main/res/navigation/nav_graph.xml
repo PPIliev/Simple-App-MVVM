@@ -22,5 +22,8 @@
         <argument
             android:name="gameid"
             app:argType="integer" />
+        <argument
+            android:name="gameThumbnail"
+            app:argType="string" />
     </fragment>
 </navigation>

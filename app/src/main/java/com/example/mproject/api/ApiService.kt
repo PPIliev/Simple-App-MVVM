@@ -11,8 +11,8 @@ interface ApiService {
     @GET("games")
     fun getAllGames(): Call<List<GameListResponse>>
 
-    @GET("game?id={game_id}")
-    fun getGameDetails(@Path("game_id") gameId: Int): Call<GameDetailsResponse>
+    @GET("game")
+    fun getGameDetails(@Query("id") id: Int): Call<GameDetailsResponse>
 
 
 }

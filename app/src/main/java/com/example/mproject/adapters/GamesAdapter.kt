@@ -26,12 +26,11 @@ class GamesAdapter @Inject constructor(): RecyclerView.Adapter<GamesAdapter.View
         return ViewHolder()
     }
 
-    override fun getItemCount(): Int {
-        TODO("Not yet implemented")
-    }
+    override fun getItemCount(): Int = differ.currentList.size
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        TODO("Not yet implemented")
+        holder.set(differ.currentList[position])
+        holder.setIsRecyclable(false)
     }
 
     inner class ViewHolder(): RecyclerView.ViewHolder(binding.root) {
@@ -48,30 +47,25 @@ class GamesAdapter @Inject constructor(): RecyclerView.Adapter<GamesAdapter.View
                     scale(Scale.FILL)
                 }
 
+                root.setOnClickListener {
+                    onItemClickListener?.let {
+                        it(item)
+                    }
+                }
+
             }
         }
 
     }
 
-//    class GamesDiffUtils(private val oldItem:List<GameListResponse>, private val newItem:List<MoviesEntity>) : DiffUtil.Callback(){
-//        override fun getOldListSize(): Int {
-//            return oldItem.size
-//        }
-//
-//        override fun getNewListSize(): Int {
-//            return newItem.size
-//        }
-//
-//        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-//            // === data type is compred here
-//            return oldItem[oldItemPosition] === newItem[newItemPosition]
-//        }
-//
-//        override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-//            return oldItem[oldItemPosition] === newItem[newItemPosition]
-//        }
-//
-//    }
+
+    private var onItemClickListener: ((GameListResponse)-> Unit)? = null
+
+    fun setOnItemClickListener (listener: ((GameListResponse) -> Unit)) {
+        onItemClickListener = listener
+    }
+
+
 
     private val differCallback = object : DiffUtil.ItemCallback<GameListResponse>() {
         override fun areItemsTheSame(oldItem: GameListResponse, newItem: GameListResponse): Boolean {
