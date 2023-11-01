@@ -6,6 +6,7 @@ import kotlinx.android.parcel.Parcelize
 @Parcelize
 data class GameDetailsResponse(
     val id: Int,
+    val title: String,
     val description: String,
     val minimum_system_requirements: SystemRequirements,
 ): Parcelable {

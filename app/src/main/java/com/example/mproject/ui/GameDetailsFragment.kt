@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -25,13 +26,22 @@ import javax.inject.Inject
 class GameDetailsFragment : Fragment() {
 
     private lateinit var binding: FragmentGameDetailsBinding
-
+    private val detailsViewModel: DetailsViewModel by viewModels()
     private val args: GameDetailsFragmentArgs by navArgs()
 
+    private var gameId = 0
 
     @Inject
     lateinit var apiRepository: ApiRepository
 
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        gameId = args.gameid
+        if (gameId > 0) {
+            detailsViewModel.loadGameDetails(gameId)
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -44,53 +54,36 @@ class GameDetailsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val id = args.gameid
-        val gameThumbnail = args.gameThumbnail
-
         binding.apply {
-            progressBarGameDetails.visibility = View.VISIBLE
-            apiRepository.getGameDetails(id).enqueue(object: Callback<GameDetailsResponse> {
-                override fun onResponse(call: Call<GameDetailsResponse>, response: Response<GameDetailsResponse>) {
-                    if (response.isSuccessful) {
-                        progressBarGameDetails.visibility = View.INVISIBLE
-                        response.body().let {
-                            tvDescription.text = it!!.description
-                            tvMinSysReqOS.text = it.minimum_system_requirements.os
-                            tvMinSysReqProcessor.text = it.minimum_system_requirements.processor
-                            tvMinSysReqMemory.text = it.minimum_system_requirements.memory
-                            tvMinSysReqGraphic.text = it.minimum_system_requirements.graphics
-                            tvMinSysReqStorage.text = it.minimum_system_requirements.storage
+            detailsViewModel.gamesDetailsList.observe(viewLifecycleOwner) { response ->
+                tvGameTitle.text = response.title
+                tvDescription.text = response.description
+                tvMinSysReqOS.text = response.minimum_system_requirements.os
+                tvMinSysReqProcessor.text = response.minimum_system_requirements.processor
+                tvMinSysReqMemory.text = response.minimum_system_requirements.memory
+                tvMinSysReqGraphic.text = response.minimum_system_requirements.graphics
+                tvMinSysReqStorage.text = response.minimum_system_requirements.storage
 
 
-
-                            ivGameImage.load(gameThumbnail) {
-                                crossfade(true)
+                ivGameImage.load(args.gameThumbnail) {
+                    crossfade(true)
 //                    placeholder(R.drawable.)
-                                scale(Scale.FILL)
-                            }
+                    scale(Scale.FILL)
+                }
 
-                        }
-
+                detailsViewModel.loading.observe(viewLifecycleOwner) {
+                    if (it) {
+                        progressBarGameDetails.visibility = View.VISIBLE
+                        cvGameDetails.visibility = View.INVISIBLE
                     } else {
-                        // Handle non-200 responses here
-                        when (response.code()) {
-                            404 -> {
-                                Toast.makeText(requireContext(), "Object not found: Game or endpoint not found", Toast.LENGTH_SHORT).show()
-                            }
-                            500 -> {
-                                Toast.makeText(requireContext(), "Something wrong on our end (unexpected server errors)", Toast.LENGTH_SHORT).show()
-                            }
-                        }
+                        progressBarGameDetails.visibility = View.INVISIBLE
+                        cvGameDetails.visibility = View.VISIBLE
                     }
                 }
 
-                override fun onFailure(call: Call<GameDetailsResponse>, t: Throwable) {
-                    t.printStackTrace() // Log the error for debugging
-                    Toast.makeText(requireContext(), "Failure", Toast.LENGTH_SHORT).show()
-                    progressBarGameDetails.visibility = View.GONE                }
-
-            })
+            }
         }
+
 
     }
 
