@@ -7,7 +7,7 @@ import javax.inject.Inject
 class ApiRepository @Inject constructor(
     private val apiService: ApiService
 ){
-    fun getAllGames() = apiService.getAllGames()
+    suspend fun getAllGames() = apiService.getAllGames()
 
     suspend fun getGameDetails(id: Int) = apiService.getGameDetails(id)
 

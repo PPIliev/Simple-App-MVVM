@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.mproject.R
@@ -25,11 +26,19 @@ class GamesFragment : Fragment() {
 
     private lateinit var binding: FragmentGamesBinding
 
+    private val apiViewModel: ApiViewModel by viewModels()
+
     @Inject
     lateinit var apiRepository: ApiRepository
 
     @Inject
     lateinit var gamesAdapter: GamesAdapter
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        apiViewModel.loadAllGamesList()
+
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -43,44 +52,22 @@ class GamesFragment : Fragment() {
 override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
     binding.apply {
-        progressBarGames.visibility = View.VISIBLE
-        apiRepository.getAllGames().enqueue(object : Callback<List<GameListResponse>> {
-            override fun onResponse(call: Call<List<GameListResponse>>, response: Response<List<GameListResponse>>) {
-                if (response.isSuccessful) {
-                    val gameList = response.body()
-                    progressBarGames.visibility = View.GONE // Hide the progress bar
-                    gamesAdapter.differ.submitList(gameList)
-                    rvGames.apply {
-                        layoutManager = LinearLayoutManager(requireContext())
-                        adapter = gamesAdapter
-                    }
-
-                    gamesAdapter.setOnItemClickListener {
-                        val direction = GamesFragmentDirections.actionGamesFragmentToGameDetailsFragment(it.id, it.thumbnail)
-                        findNavController().navigate(direction)
-                    }
-
-                } else {
-                    // Handle non-200 responses here
-                    when (response.code()) {
-                        404 -> {
-                            Toast.makeText(requireContext(), "Object not found: Game or endpoint not found", Toast.LENGTH_SHORT).show()
-                        }
-                        500 -> {
-                            Toast.makeText(requireContext(), "Something wrong on our end (unexpected server errors)", Toast.LENGTH_SHORT).show()
-                        }
-                    }
-                }
+        apiViewModel.gamesList.observe(viewLifecycleOwner) {respone ->
+            gamesAdapter.differ.submitList(respone)
+            rvGames.apply {
+                layoutManager = LinearLayoutManager(requireContext())
+                adapter = gamesAdapter
             }
 
-            override fun onFailure(call: Call<List<GameListResponse>>, t: Throwable) {
-                // Handle network failure here
-                t.printStackTrace() // Log the error for debugging
-                Toast.makeText(requireContext(), "Failure", Toast.LENGTH_SHORT).show()
-                progressBarGames.visibility = View.GONE
+            gamesAdapter.setOnItemClickListener {
+                val direction = GamesFragmentDirections.actionGamesFragmentToGameDetailsFragment(it.id, it.thumbnail)
+                findNavController().navigate(direction)
             }
-        })
+
+        }
     }
+
+
 }
 
 

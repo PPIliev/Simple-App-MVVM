@@ -10,18 +10,19 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-class ApiViewModel{
+@HiltViewModel
+class ApiViewModel @Inject constructor(private val apiRepository: ApiRepository): ViewModel(){
 
     val gamesList = MutableLiveData<List<GameListResponse>>()
     val loading = MutableLiveData<Boolean>()
-//
-//    fun loadAllGamesList() = viewModelScope.launch {
-//        val response = apiRepository.getAllGames()
-//        if (response.isSuccessful) {
-//            gamesList.postValue(response.body())
-//        }
-//        loading.postValue(false)
-//    }
+
+    fun loadAllGamesList() = viewModelScope.launch {
+        val response = apiRepository.getAllGames()
+        if (response.isSuccessful) {
+            gamesList.postValue(response.body())
+        }
+        loading.postValue(false)
+    }
 
 
 }
