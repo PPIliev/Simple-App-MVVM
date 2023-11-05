@@ -14,7 +14,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.mproject"
-        minSdk = 24
+        minSdk = 31
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -79,6 +79,10 @@ dependencies {
     //Coroutines
     implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1")
     implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.1")
+
+    //Splash Screens
+    implementation("androidx.core:core-splashscreen:1.0.1")
+
 
 
 }

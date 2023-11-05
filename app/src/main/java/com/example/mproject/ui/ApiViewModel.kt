@@ -11,7 +11,10 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class ApiViewModel @Inject constructor(private val apiRepository: ApiRepository): ViewModel(){
+class ApiViewModel @Inject
+constructor(
+    private val apiRepository: ApiRepository):
+    ViewModel(){
 
     val gamesList = MutableLiveData<List<GameListResponse>>()
     val loading = MutableLiveData<Boolean>()

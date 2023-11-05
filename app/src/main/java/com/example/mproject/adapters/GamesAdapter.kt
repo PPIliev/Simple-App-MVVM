@@ -11,6 +11,7 @@ import coil.size.Scale
 import com.example.mproject.R
 import com.example.mproject.data.response.GameListResponse
 import com.example.mproject.databinding.ItemGamesBinding
+import kotlinx.coroutines.delay
 import javax.inject.Inject
 
 class GamesAdapter @Inject constructor(): RecyclerView.Adapter<GamesAdapter.ViewHolder>() {

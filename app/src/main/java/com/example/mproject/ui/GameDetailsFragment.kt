@@ -1,5 +1,6 @@
 package com.example.mproject.ui
 
+import android.content.Context
 import android.opengl.Visibility
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -8,16 +9,20 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.coroutineScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import coil.load
 import coil.size.Scale
+import com.example.mproject.MainActivity
 import com.example.mproject.R
 import com.example.mproject.data.repository.ApiRepository
 import com.example.mproject.data.response.GameDetailsResponse
 import com.example.mproject.databinding.FragmentGameDetailsBinding
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -33,6 +38,8 @@ class GameDetailsFragment : Fragment() {
 
     @Inject
     lateinit var apiRepository: ApiRepository
+
+
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -55,6 +62,8 @@ class GameDetailsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         binding.apply {
+            (activity as MainActivity).keepSplash = true
+
             detailsViewModel.gamesDetailsList.observe(viewLifecycleOwner) { response ->
                 tvGameTitle.text = response.title
                 tvDescription.text = response.description
@@ -74,18 +83,24 @@ class GameDetailsFragment : Fragment() {
                 detailsViewModel.loading.observe(viewLifecycleOwner) {
                     if (it) {
                         progressBarGameDetails.visibility = View.VISIBLE
-                        cvGameDetails.visibility = View.INVISIBLE
+                        cardView.visibility = View.INVISIBLE
+                        ivGameImage.visibility = View.INVISIBLE
+                        tvGameTitle.visibility = View.INVISIBLE
                     } else {
                         progressBarGameDetails.visibility = View.INVISIBLE
-                        cvGameDetails.visibility = View.VISIBLE
+                        cardView.visibility = View.VISIBLE
+                        ivGameImage.visibility = View.VISIBLE
+                        tvGameTitle.visibility = View.VISIBLE
                     }
                 }
+
 
             }
         }
 
-
     }
+
+
 
 
 }

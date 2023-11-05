@@ -10,6 +10,7 @@ import android.widget.Toast
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.mproject.MainActivity
 import com.example.mproject.R
 import com.example.mproject.adapters.GamesAdapter
 import com.example.mproject.data.repository.ApiRepository
@@ -60,8 +61,10 @@ override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
             }
 
             gamesAdapter.setOnItemClickListener {
+                (activity as MainActivity).keepSplash = true
                 val direction = GamesFragmentDirections.actionGamesFragmentToGameDetailsFragment(it.id, it.thumbnail)
                 findNavController().navigate(direction)
+
             }
 
         }
