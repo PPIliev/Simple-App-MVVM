@@ -1,5 +1,6 @@
 package com.example.mproject.ui
 
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -16,15 +17,23 @@ constructor(
     private val apiRepository: ApiRepository):
     ViewModel() {
 
-    val gamesDetailsList = MutableLiveData<GameDetailsResponse>()
-    val loading = MutableLiveData<Boolean>()
+    private val _gamesDetailsListResponse = MutableLiveData<GameDetailsResponse>()
+    private val _loading = MutableLiveData<Boolean>()
+
+    val gamesDetailsList: LiveData<GameDetailsResponse>
+            get() = _gamesDetailsListResponse
+    val loading: LiveData<Boolean>
+        get() = _loading
+
     fun loadGameDetails(id: Int) = viewModelScope.launch {
-        loading.postValue(true)
-        val response = apiRepository.getGameDetails(id)
-        if (response.isSuccessful) {
-            gamesDetailsList.postValue(response.body())
+        _loading.postValue(true)
+
+        apiRepository.getGameDetails(id).let { response ->
+            if (response.isSuccessful) {
+                _gamesDetailsListResponse.postValue(response.body())
+            }
+            _loading.postValue(false)
         }
-        loading.postValue(false)
     }
 
 }
