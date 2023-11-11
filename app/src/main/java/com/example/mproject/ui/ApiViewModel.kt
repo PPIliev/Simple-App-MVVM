@@ -19,28 +19,29 @@ constructor(
     private val apiRepository: ApiRepository):
     ViewModel(){
 
-    private val _gamesListResponse = MutableLiveData<List<GameListResponse>>()
-    private val _loading = MutableLiveData<Boolean>()
-
-    val gamesList: LiveData<List<GameListResponse>>
-        get() = _gamesListResponse
-    val loading: LiveData<Boolean>
-        get() = _loading
-
-    fun loadAllGamesList() = viewModelScope.launch {
-        apiRepository.getAllGames().let { response ->
-            if (response.isSuccessful) {
-                _gamesListResponse.postValue(response.body())
-            }
-            _loading.postValue(false)
-        }
-    }
-
-    fun getAllGamesList() = viewModelScope.launch {
-        apiRepository.getAllGamesFlow().collect {
-            _gamesListResponse.value = it
-        }
-    }
+            //LiveData
+//    private val _gamesListResponse = MutableLiveData<List<GameListResponse>>()
+//    private val _loading = MutableLiveData<Boolean>()
+//
+//    val gamesList: LiveData<List<GameListResponse>>
+//        get() = _gamesListResponse
+//    val loading: LiveData<Boolean>
+//        get() = _loading
+//
+//    fun loadAllGamesList() = viewModelScope.launch {
+//        apiRepository.getAllGames().let { response ->
+//            if (response.isSuccessful) {
+//                _gamesListResponse.postValue(response.body())
+//            }
+//            _loading.postValue(false)
+//        }
+//    }
+//
+//    fun getAllGamesList() = viewModelScope.launch {
+//        apiRepository.getAllGamesFlow().collect {
+//            _gamesListResponse.value = it
+//        }
+//    }
 
     private val _gamesResponse = MutableStateFlow<List<GameListResponse>?>(null)
     private val _loadingState = MutableStateFlow<Boolean>(false)
