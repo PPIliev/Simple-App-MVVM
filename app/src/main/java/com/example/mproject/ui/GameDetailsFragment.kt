@@ -9,7 +9,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.coroutineScope
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -22,6 +25,7 @@ import com.example.mproject.data.response.GameDetailsResponse
 import com.example.mproject.databinding.FragmentGameDetailsBinding
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
@@ -40,20 +44,19 @@ class GameDetailsFragment : Fragment() {
     lateinit var apiRepository: ApiRepository
 
 
-
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         gameId = args.gameid
         if (gameId > 0) {
-            detailsViewModel.loadGameDetails(gameId)
+//            detailsViewModel.loadGameDetails(gameId)
+            detailsViewModel.loadGameDetailss(gameId)
         }
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = FragmentGameDetailsBinding.inflate(layoutInflater, container, false)
         return binding.root
     }
@@ -64,43 +67,88 @@ class GameDetailsFragment : Fragment() {
         binding.apply {
             (activity as MainActivity).keepSplash = true
 
-            detailsViewModel.gamesDetailsList.observe(viewLifecycleOwner) { response ->
-                tvGameTitle.text = response.title
-                tvDescription.text = response.description
-                tvMinSysReqOS.text = response.minimum_system_requirements.os
-                tvMinSysReqProcessor.text = response.minimum_system_requirements.processor
-                tvMinSysReqMemory.text = response.minimum_system_requirements.memory
-                tvMinSysReqGraphic.text = response.minimum_system_requirements.graphics
-                tvMinSysReqStorage.text = response.minimum_system_requirements.storage
+            //Flow
+            lifecycleScope.launch {
+                lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                    detailsViewModel.gameDetailsResponse.collect { response ->
+                        tvGameTitle.text = response?.title
+                        tvDescription.text = response?.description
+                        tvMinSysReqOS.text = response?.minimum_system_requirements?.os
+                        tvMinSysReqProcessor.text = response?.minimum_system_requirements?.processor
+                        tvMinSysReqMemory.text = response?.minimum_system_requirements?.memory
+                        tvMinSysReqGraphic.text = response?.minimum_system_requirements?.graphics
+                        tvMinSysReqStorage.text = response?.minimum_system_requirements?.storage
 
 
-                ivGameImage.load(args.gameThumbnail) {
-                    crossfade(true)
+                        ivGameImage.load(args.gameThumbnail) {
+                            crossfade(true)
 //                    placeholder(R.drawable.)
-                    scale(Scale.FILL)
-                }
+                            scale(Scale.FILL)
+                        }
 
-                detailsViewModel.loading.observe(viewLifecycleOwner) {
-                    if (it) {
-                        progressBarGameDetails.visibility = View.VISIBLE
-                        cardView.visibility = View.INVISIBLE
-                        ivGameImage.visibility = View.INVISIBLE
-                        tvGameTitle.visibility = View.INVISIBLE
-                    } else {
-                        progressBarGameDetails.visibility = View.INVISIBLE
-                        cardView.visibility = View.VISIBLE
-                        ivGameImage.visibility = View.VISIBLE
-                        tvGameTitle.visibility = View.VISIBLE
+
                     }
+
+
                 }
-
-
             }
+
+            lifecycleScope.launch {
+                lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                    detailsViewModel.loadingState.collect {
+                        if (it) {
+                            progressBarGameDetails.visibility = View.VISIBLE
+                            cardView.visibility = View.INVISIBLE
+                            ivGameImage.visibility = View.INVISIBLE
+                            tvGameTitle.visibility = View.INVISIBLE
+                        } else {
+                            progressBarGameDetails.visibility = View.INVISIBLE
+                            cardView.visibility = View.VISIBLE
+                            ivGameImage.visibility = View.VISIBLE
+                            tvGameTitle.visibility = View.VISIBLE
+                        }
+
+                    }
+
+                }
+            }
+
+                //LiveData
+//                detailsViewModel.gamesDetailsList.observe(viewLifecycleOwner) { response ->
+//                    tvGameTitle.text = response.title
+//                    tvDescription.text = response.description
+//                    tvMinSysReqOS.text = response.minimum_system_requirements.os
+//                    tvMinSysReqProcessor.text = response.minimum_system_requirements.processor
+//                    tvMinSysReqMemory.text = response.minimum_system_requirements.memory
+//                    tvMinSysReqGraphic.text = response.minimum_system_requirements.graphics
+//                    tvMinSysReqStorage.text = response.minimum_system_requirements.storage
+//
+//
+//                    ivGameImage.load(args.gameThumbnail) {
+//                        crossfade(true)
+////                    placeholder(R.drawable.)
+//                        scale(Scale.FILL)
+//                    }
+//
+//                    detailsViewModel.loading.observe(viewLifecycleOwner) {
+//                        if (it) {
+//                            progressBarGameDetails.visibility = View.VISIBLE
+//                            cardView.visibility = View.INVISIBLE
+//                            ivGameImage.visibility = View.INVISIBLE
+//                            tvGameTitle.visibility = View.INVISIBLE
+//                        } else {
+//                            progressBarGameDetails.visibility = View.INVISIBLE
+//                            cardView.visibility = View.VISIBLE
+//                            ivGameImage.visibility = View.VISIBLE
+//                            tvGameTitle.visibility = View.VISIBLE
+//                        }
+//                    }
+//
+//
+//                }
+            }
+
         }
 
+
     }
-
-
-
-
-}

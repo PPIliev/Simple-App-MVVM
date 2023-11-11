@@ -15,12 +15,12 @@ class ApiRepository @Inject constructor(
 
     suspend fun getGameDetails(id: Int) = apiService.getGameDetails(id)
 
-    suspend fun getAllGamesFlow() = flow {
-        val result = apiService.getAllGames()
-        if (result.isSuccessful) {
-            emit(result.body())
-        }
-    }.flowOn(Dispatchers.IO)
+//    suspend fun getAllGamesFlow() = flow {
+//        val result = apiService.getAllGames()
+//        if (result.isSuccessful) {
+//            emit(result.body())
+//        }
+//    }.flowOn(Dispatchers.IO)
 
 
 }

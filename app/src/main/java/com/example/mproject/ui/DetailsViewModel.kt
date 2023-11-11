@@ -8,6 +8,9 @@ import com.example.mproject.data.repository.ApiRepository
 import com.example.mproject.data.response.GameDetailsResponse
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -17,23 +20,44 @@ constructor(
     private val apiRepository: ApiRepository):
     ViewModel() {
 
-    private val _gamesDetailsListResponse = MutableLiveData<GameDetailsResponse>()
-    private val _loading = MutableLiveData<Boolean>()
 
-    val gamesDetailsList: LiveData<GameDetailsResponse>
-            get() = _gamesDetailsListResponse
-    val loading: LiveData<Boolean>
-        get() = _loading
+    // Flow
+    private val _gamesDetailsResponse = MutableStateFlow<GameDetailsResponse?>(null)
+    private val _loadingState = MutableStateFlow<Boolean>(false)
 
-    fun loadGameDetails(id: Int) = viewModelScope.launch {
-        _loading.postValue(true)
+    val gameDetailsResponse = _gamesDetailsResponse.asStateFlow()
+    val loadingState = _loadingState.asStateFlow()
+
+    fun loadGameDetailss(id: Int) = viewModelScope.launch {
+        _loadingState.value = true
 
         apiRepository.getGameDetails(id).let { response ->
             if (response.isSuccessful) {
-                _gamesDetailsListResponse.postValue(response.body())
+                _gamesDetailsResponse.emit(response.body())
             }
-            _loading.postValue(false)
+            _loadingState
         }
+        _loadingState.value = false
+
     }
+
+    // LiveData
+//    private val _gamesDetailsListResponse = MutableLiveData<GameDetailsResponse>()
+//    private val _loading = MutableLiveData<Boolean>()
+//    val gamesDetailsList: LiveData<GameDetailsResponse>
+//            get() = _gamesDetailsListResponse
+//    val loading: LiveData<Boolean>
+//        get() = _loading
+//
+//    fun loadGameDetails(id: Int) = viewModelScope.launch {
+//        _loading.postValue(true)
+//
+//        apiRepository.getGameDetails(id).let { response ->
+//            if (response.isSuccessful) {
+//                _gamesDetailsListResponse.postValue(response.body())
+//            }
+//            _loading.postValue(false)
+//        }
+//    }
 
 }

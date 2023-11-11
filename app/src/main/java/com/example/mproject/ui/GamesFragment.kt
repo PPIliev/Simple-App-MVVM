@@ -8,6 +8,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.mproject.MainActivity
@@ -17,6 +20,8 @@ import com.example.mproject.data.repository.ApiRepository
 import com.example.mproject.data.response.GameListResponse
 import com.example.mproject.databinding.FragmentGamesBinding
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -37,14 +42,16 @@ class GamesFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        apiViewModel.loadAllGamesList()
+        //LiveData
+        //apiViewModel.loadAllGamesList()
+        apiViewModel.loadGamesList()
 
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = FragmentGamesBinding.inflate(layoutInflater, container, false)
         return binding.root
     }
@@ -53,21 +60,42 @@ class GamesFragment : Fragment() {
 override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
     binding.apply {
-        apiViewModel.gamesList.observe(viewLifecycleOwner) {respone ->
-            gamesAdapter.differ.submitList(respone)
-            rvGames.apply {
-                layoutManager = LinearLayoutManager(requireContext())
-                adapter = gamesAdapter
+        lifecycleScope.launch {
+            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                apiViewModel.gameListResponse.collect { response ->
+                    gamesAdapter.differ.submitList(response)
+                    rvGames.apply {
+                        layoutManager = LinearLayoutManager(requireContext())
+                        adapter = gamesAdapter
+                    }
+
+                    gamesAdapter.setOnItemClickListener {
+                        val direction = GamesFragmentDirections.actionGamesFragmentToGameDetailsFragment(it.id, it.thumbnail)
+                        findNavController().navigate(direction)
+                    }
+
+
+                }
             }
-
-            gamesAdapter.setOnItemClickListener {
-                (activity as MainActivity).keepSplash = true
-                val direction = GamesFragmentDirections.actionGamesFragmentToGameDetailsFragment(it.id, it.thumbnail)
-                findNavController().navigate(direction)
-
-            }
-
         }
+
+
+        //LiveData
+//        apiViewModel.gamesList.observe(viewLifecycleOwner) {respone ->
+//            gamesAdapter.differ.submitList(respone)
+//            rvGames.apply {
+//                layoutManager = LinearLayoutManager(requireContext())
+//                adapter = gamesAdapter
+//            }
+//
+//            gamesAdapter.setOnItemClickListener {
+//                (activity as MainActivity).keepSplash = true
+//                val direction = GamesFragmentDirections.actionGamesFragmentToGameDetailsFragment(it.id, it.thumbnail)
+//                findNavController().navigate(direction)
+//
+//            }
+//
+//        }
     }
 
 
