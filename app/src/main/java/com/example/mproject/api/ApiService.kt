@@ -1,5 +1,6 @@
 package com.example.mproject.api
 
+import com.example.mproject.data.response.GameCategoryResponse
 import com.example.mproject.data.response.GameDetailsResponse
 import com.example.mproject.data.response.GameListResponse
 import retrofit2.Call
@@ -14,6 +15,9 @@ interface ApiService {
 
     @GET("game")
     suspend fun getGameDetails(@Query("id") id: Int): Response<GameDetailsResponse>
+
+    @GET("games")
+    suspend fun getGameCategory(@Query("category") category: String): Response<List<GameListResponse>>
 
 
 }

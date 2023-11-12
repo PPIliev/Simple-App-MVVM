@@ -5,4 +5,5 @@
     <string name="name">Name:</string>
     <string name="developer">Developer</string>
     <string name="platform">Platform</string>
+    <string name="category">Category</string>
 </resources>

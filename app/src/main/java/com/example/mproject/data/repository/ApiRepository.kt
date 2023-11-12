@@ -14,6 +14,7 @@ class ApiRepository @Inject constructor(
     suspend fun getAllGames() = apiService.getAllGames()
 
     suspend fun getGameDetails(id: Int) = apiService.getGameDetails(id)
+    suspend fun getCategories(category: String) = apiService.getGameCategory(category)
 
 //    suspend fun getAllGamesFlow() = flow {
 //        val result = apiService.getAllGames()

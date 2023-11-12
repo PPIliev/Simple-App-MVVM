@@ -40,7 +40,7 @@ class GamesAdapter @Inject constructor(): RecyclerView.Adapter<GamesAdapter.View
             binding.apply {
                 tvGameName.text = item.title
                 tvDeveloper.text = item.developer
-                tvPlatform.text = item.platform
+                tvCategory.text = item.genre
 
                 ivGameImage.load(item.thumbnail) {
                     crossfade(true)
@@ -74,7 +74,7 @@ class GamesAdapter @Inject constructor(): RecyclerView.Adapter<GamesAdapter.View
         }
 
         override fun areContentsTheSame(oldItem: GameListResponse, newItem: GameListResponse): Boolean {
-            return oldItem == newItem // You can use the default equals() method
+            return oldItem == newItem
         }
     }
 
